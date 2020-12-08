@@ -14,8 +14,8 @@ import dagger.hilt.android.AndroidEntryPoint
 class QRGenerateFragment(var type: String) : RoundedBottomSheetDialogFragment() {
 
     private val TAG: String = QRGenerateFragment::class.java.simpleName
-    private lateinit var binding: FragmentKbQrGenerateBinding
     private val viewModel by viewModels<QRViewModel>()
+    private lateinit var binding: FragmentKbQrGenerateBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -23,14 +23,28 @@ class QRGenerateFragment(var type: String) : RoundedBottomSheetDialogFragment() 
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentKbQrGenerateBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = this
+        binding.viewModle = viewModel
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        viewModel.qrGenerate(type)
-        viewModel.qrImage.observe(this, Observer {
-            binding.qrImage.setImageBitmap(it)
-        })
+        viewModel.apply {
+            qrGenerate(type)
+            qrImage.observe(this@QRGenerateFragment, Observer {
+                binding.qrImage.setImageBitmap(it)
+            })
+            second.observe(this@QRGenerateFragment, Observer {
+                if(it == 0) {
+                    dismiss()
+                }
+            })
+            viewModel.getTimerSecond(15)
+        }
+
+        binding.button.setOnClickListener {
+            dismiss()
+        }
     }
 }

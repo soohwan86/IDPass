@@ -13,12 +13,14 @@ import com.kbds.idpass.data.extension.encryptAes256
 import com.kbds.idpass.data.model.PassInfo
 import com.kbds.idpass.data.preferences.PreferencesObject
 import com.kbds.idpass.data.repository.KBRepository
+import kotlin.concurrent.timer
 
 class QRViewModel @ViewModelInject constructor (
     private val repository: KBRepository,
     private val preferencesObject: PreferencesObject
 ): ViewModel() {
     var qrImage = MutableLiveData<Bitmap>()
+    var second = MutableLiveData<Int>()
 
     fun qrGenerate(type: String) {
         val width: Int = Resources.getSystem().displayMetrics.widthPixels
@@ -35,6 +37,17 @@ class QRViewModel @ViewModelInject constructor (
     fun generateKBPass(passInfo: PassInfo) {
         var gson = Gson()
         preferencesObject.putString(Constants.PREFERENCE.KB_PASS, gson.toJson(passInfo).encryptAes256())
+    }
+
+    fun getTimerSecond(s: Int) {
+        var _second = s
+        second.value = _second
+        timer(period = 1000, initialDelay = 1000) {
+            if(_second == 0)
+                cancel()
+            _second--
+            second.postValue(_second)
+        }
     }
 
 }

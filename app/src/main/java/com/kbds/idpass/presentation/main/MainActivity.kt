@@ -57,6 +57,9 @@ class MainActivity : AppCompatActivity() {
             showQRCode(Constants.PARAM.KB_TYPE_REGISTER)
     }
 
+    /**
+     * qrFragment show
+     */
     private fun showQRCode(type: String) {
         mainViewModel.showQRCode(type, supportFragmentManager)
     }
