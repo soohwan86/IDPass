@@ -1,11 +1,12 @@
 package com.kbds.idpass.presentation.qr
 
 import android.os.Bundle
-import android.view.LayoutInflater
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
-import com.kbds.idpass.data.model.PassInfo
-import com.kbds.idpass.data.util.DataUtil
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.Observer
+import com.kbds.idpass.R
 import com.kbds.idpass.databinding.ActivityQrEmpInfoRegisterBinding
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -13,23 +14,32 @@ import dagger.hilt.android.AndroidEntryPoint
 class QREmpInfoRegisterActivity : AppCompatActivity() {
 
     private val TAG: String = QREmpInfoRegisterActivity::class.java.simpleName
-    lateinit var binding: ActivityQrEmpInfoRegisterBinding
 
     private val qrViewModel by viewModels<QRViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        binding = ActivityQrEmpInfoRegisterBinding.inflate(LayoutInflater.from(this))
-        setContentView(binding.root)
-
+        val binding: ActivityQrEmpInfoRegisterBinding = DataBindingUtil.setContentView(this, R.layout.activity_qr_emp_info_register)
         binding.apply {
+            lifecycleOwner = this@QREmpInfoRegisterActivity
+            viewModel = qrViewModel
+
             registerBtn.setOnClickListener {
-                var passInfo = PassInfo(idText.text.toString(), passwordText.text.toString(), DataUtil.getDeviceId(contentResolver = contentResolver))
-                qrViewModel.generateKBPass(passInfo)
-                setResult(RESULT_OK)
-                finish()
+                qrViewModel.apply {
+                    generateKBPass(contentResolver)
+                    validation.observe(this@QREmpInfoRegisterActivity, Observer { isGenerate ->
+                        if(isGenerate) {
+                            setResult(RESULT_OK)
+                            finish()
+                        } else {
+                            Toast.makeText(this@QREmpInfoRegisterActivity, "필수 항목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+                        }
+                    })
+                }
             }
         }
+
+
     }
 }

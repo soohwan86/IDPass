@@ -35,8 +35,12 @@ class MainActivity : AppCompatActivity() {
         binding.apply {
             // 직원정보등록
             infoRegistBtn.setOnClickListener {
-                Intent(this@MainActivity, QREmpInfoRegisterActivity::class.java).apply {
-                    getStartActivityForResult.launch(this)
+                if(repository.getKbPassData().isNotEmpty()) {
+                    Toast.makeText(this@MainActivity, "이미 등록되었습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Intent(this@MainActivity, QREmpInfoRegisterActivity::class.java).apply {
+                        getStartActivityForResult.launch(this)
+                    }
                 }
             }
             // QR체크인

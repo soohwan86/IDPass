@@ -1,5 +1,6 @@
 package com.kbds.idpass.presentation.qr
 
+import android.content.ContentResolver
 import android.content.res.Resources
 import android.graphics.Bitmap
 import androidmads.library.qrgenearator.QRGContents
@@ -13,6 +14,7 @@ import com.kbds.idpass.data.extension.encryptAes256
 import com.kbds.idpass.data.model.PassInfo
 import com.kbds.idpass.data.preferences.PreferencesObject
 import com.kbds.idpass.data.repository.KBRepository
+import com.kbds.idpass.data.util.DataUtil
 import kotlin.concurrent.timer
 
 class QRViewModel @ViewModelInject constructor (
@@ -21,6 +23,10 @@ class QRViewModel @ViewModelInject constructor (
 ): ViewModel() {
     var qrImage = MutableLiveData<Bitmap>()
     var second = MutableLiveData<Int>()
+    var validation = MutableLiveData<Boolean>()
+
+    var idText = ""
+    var passwordText = ""
 
     fun qrGenerate(type: String) {
         val width: Int = Resources.getSystem().displayMetrics.widthPixels
@@ -34,9 +40,15 @@ class QRViewModel @ViewModelInject constructor (
         qrImage.value = qrgEncoder.encodeAsBitmap()
     }
 
-    fun generateKBPass(passInfo: PassInfo) {
+    fun generateKBPass(contentResolver: ContentResolver) {
         var gson = Gson()
-        preferencesObject.putString(Constants.PREFERENCE.KB_PASS, gson.toJson(passInfo).encryptAes256())
+        if(idText.isEmpty() or passwordText.isEmpty()) {
+            validation.value = false
+        } else {
+            var passInfo = PassInfo(idText, passwordText, DataUtil.getDeviceId(contentResolver))
+            preferencesObject.putString(Constants.PREFERENCE.KB_PASS, gson.toJson(passInfo).encryptAes256())
+            validation.value = true
+        }
     }
 
     fun getTimerSecond(s: Int) {
@@ -49,5 +61,4 @@ class QRViewModel @ViewModelInject constructor (
             second.postValue(_second)
         }
     }
-
 }
