@@ -1,10 +1,10 @@
 package com.kbds.idpass.presentation.qr
 
-import android.content.ContentResolver
 import android.content.res.Resources
 import android.graphics.Bitmap
 import androidmads.library.qrgenearator.QRGContents
 import androidmads.library.qrgenearator.QRGEncoder
+import androidx.databinding.ObservableInt
 import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -14,7 +14,6 @@ import com.kbds.idpass.data.extension.encryptAes256
 import com.kbds.idpass.data.model.PassInfo
 import com.kbds.idpass.data.preferences.PreferencesObject
 import com.kbds.idpass.data.repository.KBRepository
-import com.kbds.idpass.data.util.DataUtil
 import kotlin.concurrent.timer
 
 class QRViewModel @ViewModelInject constructor (
@@ -40,12 +39,12 @@ class QRViewModel @ViewModelInject constructor (
         qrImage.value = qrgEncoder.encodeAsBitmap()
     }
 
-    fun generateKBPass(contentResolver: ContentResolver) {
+    fun generateKBPass() {
         var gson = Gson()
         if(idText.isEmpty() or passwordText.isEmpty()) {
             validation.value = false
         } else {
-            var passInfo = PassInfo(idText, passwordText, DataUtil.getDeviceId(contentResolver))
+            var passInfo = PassInfo(idText, passwordText, repository.getDeviceId())
             preferencesObject.putString(Constants.PREFERENCE.KB_PASS, gson.toJson(passInfo).encryptAes256())
             validation.value = true
         }

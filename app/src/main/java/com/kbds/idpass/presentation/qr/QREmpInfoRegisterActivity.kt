@@ -24,22 +24,15 @@ class QREmpInfoRegisterActivity : AppCompatActivity() {
         binding.apply {
             lifecycleOwner = this@QREmpInfoRegisterActivity
             viewModel = qrViewModel
-
-            registerBtn.setOnClickListener {
-                qrViewModel.apply {
-                    generateKBPass(contentResolver)
-                    validation.observe(this@QREmpInfoRegisterActivity, Observer { isGenerate ->
-                        if(isGenerate) {
-                            setResult(RESULT_OK)
-                            finish()
-                        } else {
-                            Toast.makeText(this@QREmpInfoRegisterActivity, "필수 항목을 입력해주세요.", Toast.LENGTH_SHORT).show()
-                        }
-                    })
-                }
-            }
         }
 
-
+        qrViewModel.validation.observe(this@QREmpInfoRegisterActivity, Observer { isGenerate ->
+            if(isGenerate) {
+                setResult(RESULT_OK)
+                finish()
+            } else {
+                Toast.makeText(this@QREmpInfoRegisterActivity, "필수 항목을 입력해주세요.", Toast.LENGTH_SHORT).show()
+            }
+        })
     }
 }

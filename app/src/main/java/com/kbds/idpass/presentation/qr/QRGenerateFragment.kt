@@ -22,6 +22,7 @@ class QRGenerateFragment(var type: String) : RoundedBottomSheetDialogFragment() 
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
         binding = FragmentKbQrGenerateBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = this
         binding.viewModle = viewModel
